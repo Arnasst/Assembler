@@ -6,23 +6,23 @@ org 100h
 section .text ;operacijos
 
     startas:
-    ;prisistatymas 
+    ;introduction
    mov ah, 09
    mov dx, prisistatymas
    int 0x21
    
    macNewLine
-   ;papraso ivesti duomenis
+   ;asks for input
    mov ah, 9
    mov dx, pranesimas1
    int 0x21
     
-   ;priema duomenis
+   ;takes input
    mov ah, 0x0A
    mov dx, buferisIvedimui
    int 0x21
    macNewLine
-   ;paprasome 3 skaiciu
+   ;Asks for 3 numbers
    macPutString 'Ivesk pirma skaiciu', crlf, '$'
    call procGetUInt16
    mov [a], ax
@@ -38,48 +38,47 @@ section .text ;operacijos
    mov [c], ax
    macNewLine
     
-   ;isveda tuscia eilute
+   ;puts an empty line
    mov ah, 9
    mov dx, naujaEilute
    int 0x21
 ;----------------------------------------------------------------------------------------------------;
-   ;pirma uzduotis: apkeisti ketvirta ir astunta simbolius, o antra paversti procento zenklu 
-   ;apkeicia ketvirta ir astuntas simbolius vietomis ir antra padaro procentu
-   mov al, [buferisIvedimui+5]           ; AL <- ketvirtas simbolis
-   mov ah, [buferisIvedimui+9]           ; AH <- astuntas simbolis
-   mov [buferisIvedimui+5], ah           ; ketvirtas simbolis <- AH
-   mov [buferisIvedimui+9], al           ; astuntas simbolis <- AL
+   ;first task: exchange 4'th and 8'th symbol, make 2'nd a percentage sign  
+   mov al, [buferisIvedimui+5]           ; AL <- 4'th symbol
+   mov ah, [buferisIvedimui+9]           ; AH <- 8'th symbol
+   mov [buferisIvedimui+5], ah           ; 4'th symbol <- AH
+   mov [buferisIvedimui+9], al           ; 8'th symbol <- AL
    mov al, [buferisIvedimui+3]
    mov [antras+2], al   
-   mov byte [buferisIvedimui+3], '%'
+   mov byte [buferisIvedimui+3], '%'     ; 2'nd symbol <- %
     
-   ;pranesa, kad isves atsakyma
+   ;says it will write the answer
    mov ah, 09
    mov dx, pranesimas2
    int 0x21
     
-   ;paruosia isvesti atsakyma 
+   ;prepares to write the answer
    mov bx, 0
-   mov bl, [buferisIvedimui+1]           ; bx <- kiek ivedeme baitu
-   mov byte [buferisIvedimui+bx+3], 0x0a ; pridedame gale LF (CR jau ten yra) 
-   mov byte [buferisIvedimui+bx+4], '$'  ; pridedame gale '$' tam, kad 9-a funkcija galetu atspausdinti  
-   ;isveda ats
+   mov bl, [buferisIvedimui+1]           ; bx <- length
+   mov byte [buferisIvedimui+bx+3], 0x0a 
+   mov byte [buferisIvedimui+bx+4], '$'  ; we add '$' so, 9'th function could be used  
+   ;outputs the answer
    mov ah, 9
    mov dx, buferisIvedimui+2
    int 0x21
 ;---------------------------------------------------------------------------------------------------------;
    macNewLine
-   ;antra uzduotis
+   ;second task
    
    macPutString '2) 3, 4 ir 9 bitu sumos yra:', crlf, '$'
    
-   ;sugraziname sena eilute
-   mov al, [buferisIvedimui+5]           ; AL <- ketvirtas simbolis
-   mov ah, [buferisIvedimui+9]           ; AH <- astuntas simbolis
-   mov [buferisIvedimui+5], ah           ; ketvirtas simbolis <- AH
+   ;we bring back the old line
+   mov al, [buferisIvedimui+5]          
+   mov ah, [buferisIvedimui+9]          
+   mov [buferisIvedimui+5], ah          
    mov [buferisIvedimui+9], al
    mov al, [antras+2]
-   mov [buferisIvedimui+3], al           ;antra atkeiciame i sena
+   mov [buferisIvedimui+3], al           
    
    mov cx, 0
    mov cl, [buferisIvedimui+1]
@@ -89,22 +88,22 @@ section .text ;operacijos
    mov ax, 0
    mov dx, cx
    mov bx, [buferisIvedimui+2+si]
-   and bx, 0x0200                         ; lieka nepakeistas tik 9-as bitas 
-   mov cl, 9                              ; reikes stumti bx tiek kartu
+   and bx, 0x0200                         ; only 9'th bit unchanged 
+   mov cl, 9                              ; we shift right 9 times
    shr bx, cl                       
-   add ax, bx                             ; didiname atsakyma, dabar issemiau word pries ax
+   add ax, bx                             ; increment the answer
 
    mov bx, [buferisIvedimui+2+si]
-   and bx, 0x0010                         ; lieka nepakeistas tik 4-as bitas 
-   mov cl, 4                              ; reikes stumtii bx tiek kartu
+   and bx, 0x0010                         ; only 4'th bit unchanged
+   mov cl, 4                             
    shr bx, cl                             
-   add ax, bx                             ; didiname atsakyma
+   add ax, bx                         
 
    mov bx, [buferisIvedimui+2+si]
    and bx, 0x0008
    mov cl, 3
-   shr bx, cl                             ; lieka nepakeistas tik 3-as bitas 
-   add ax, bx                             ; didiname atsakyma
+   shr bx, cl                             ; only 3'rd bit unchanged
+   add ax, bx                           
    mov cx, dx
    
    inc si
@@ -113,25 +112,25 @@ section .text ;operacijos
 
 ;---------------------------------------------------------------------------------------------------------;
    macNewLine    
-   ;trecia uzduotis:
+   ;third task
    ;|a-15| + |b % 15 - 10| + max(c%10,b%10)
-   ;pirma operacija 
+   ;first operation 
    mov ax, [a]
    mov bx, 0x0F
    cmp ax, bx
    sub ax, bx
-   ja teig1 ;modulis
+   ja teig1 ;abs
    neg ax
    
    teig1:
    mov [operacija1], ax
 
    ;antra operacija
-   mov dx, 0    ;reikia nunulinti pries dalinant
+   mov dx, 0    
    mov ax, [b]
    mov bx, 0x0F
    div bx
-   mov ax, dx   ;perkeliame liekana i ax
+   mov ax, dx   ;move the remainder
    mov bx, 0x0A
    cmp dx, bx
    sub dx, bx
@@ -147,25 +146,25 @@ section .text ;operacijos
    mov bx, 0x0A
    div bx
    mov ax, dx
-   mov [b], ax ;issaugau b liekana
+   mov [b], ax ;remember the remainder
    mov dx, 0
    mov ax, [c]
    div bx
    mov ax, dx
    mov bx, [b]
-   cmp ax, bx ;sulyginu liekanas
+   cmp ax, bx ; compare them
    jae .rezultatas
    mov ax, bx
    
    .rezultatas:
-   mov [operacija3], ax ; ikelia didesni kaip 3 operacijos rezultata
+   mov [operacija3], ax ; puts in the bigger one as the result
 
    ;pabaigimas
    mov ax, [operacija1]
    mov bx, [operacija2] 
-   add ax, bx           ;sudetis operaciju
+   add ax, bx           ;addition
    mov bx, [operacija3]
-   add ax, bx           ;galutine sudetis
+   add ax, bx           ;final answer
    
    ;rezulatu isvedimas
    macPutString crlf, '3)|a-15| + |b % 15 - 10| + max(c%10,b%10) Gautas rezultatas:  $';
