@@ -1,6 +1,6 @@
-;Programa i?veda tik tas eilutes, kuriose pirmas laukas turi tik dvi raides 'A',
-;trecias laukas yra neigiamas skaicius,
-;ketvirto ir penkto skirtumas nesidalina is 11.   
+;Program outputs only these lines ,that have two 'A' symbols in it,
+;third number is negative,
+;fourth and fifth number's difference is not dividable by 11.   
 
 %include 'yasmmac.inc'          ; Pagalbiniai makrosai
 ;---------------------------------------------------
@@ -13,7 +13,7 @@ startas:
     ;------------------------------------------------;
    ;suvedame naudojamu failu vardus 
    ;macPutString 'Ivesk skaitomo failo varda', crlf, '$'
-   ;mov al, 128                  ; ilgiausia eilute
+   ;mov al, 128                  ; longest line
    ;mov dx, skaitymoFailas      ; 
    ;call procGetStr              
    ;macNewLine
@@ -25,7 +25,7 @@ startas:
    
    macNewLine  
    
-   xor bx, bx                   ;perkeliu prie ivesties turima failo pavadinima, kaip ivedamo failo pavadinima
+   xor bx, bx                  
    mov bl, [0x80]
    mov byte [bx+0x81], '$'
    xor bx, bx
@@ -42,8 +42,8 @@ startas:
    
    rezSkaitymas:
         macPutString 'Ivesk rasomo failo varda', crlf, '$'
-        mov al, 128                  ; ilgiausia eilute
-        mov dx, rasymoFailas      ; 
+        mov al, 128                
+        mov dx, rasymoFailas      
         call procGetStr              
         macNewLine
   
@@ -58,7 +58,7 @@ startas:
    macPutString 'Klaida atidarant faila skaitymui', crlf, '$' 
    jmp .pab
    
-   .kitoFailoAtidarymas:            ;atidarome faila rasymui
+   .kitoFailoAtidarymas:            ;open file for writing
         mov dx, rasymoFailas
         mov ah, 0x3D
         mov al, 0x01
@@ -69,7 +69,7 @@ startas:
    macPutString 'Klaida atidarant faila rasymui', crlf, '$' 
    jmp .pab
 
-   .skaitymas:                  ;skaitau kiekviena dali atskirai ir issaugau skirtingose atminties vietuose
+   .skaitymas:                  ;i read every section of file as different, because there are 5 parts that i need to take into account
    mov dx, dalis1
    mov bx, 0
    call .skaityti
@@ -97,7 +97,7 @@ startas:
    
    mov byte [Askc], 0
    
-   ;patikriname ar eilutes tik pirmi du simboliai 'A'
+   ;check whether there are 2 'A'
    ;mov byte al, [dalis1+2]
    ;cmp al, 'A'
    ;jne .skaitymas
@@ -122,7 +122,7 @@ startas:
    ;mov [Askc], dx
    inc byte [Askc]
    
-   .negeras:
+   .negeras: 
    loop .kartoti
    
    mov ah, [Askc]
@@ -134,12 +134,12 @@ startas:
    
    
    
-   ;patikriname ar trecias laukas yra neigiamas skaicius
+   ;check whether third field is a negative number
    mov al, [dalis3+2]
    cmp al, '-'
    jne .skaitymas
    
-   ;patikriname ar ketvirto ir penkto lauku skirtumas nesidalina is 11
+   ;check if fourth and fifth number's difference is not dividable by 11.
    mov dx, dalis4+2
    call procParseInt16 
    push ax
@@ -147,7 +147,7 @@ startas:
    call procParseInt16
    pop bx
    cmp ax, bx
-   jg .axdaugiau        ;modulis, del liekanos gavimo
+   jg .axdaugiau        ;abs
    xchg ax, bx
    .axdaugiau:
    sub ax, bx
@@ -159,7 +159,7 @@ startas:
    je .skaitymas 
    
    
-   ;spausdinimas tinkamu daliu
+   ;print results
    mov dx, dalis1
    mov bx, [ilgis1]
    call .spausdinti
@@ -182,12 +182,11 @@ startas:
    
    jmp .skaitymas
    
-   .uzdarymas: ;uzdarome skaitoma faila
+   .uzdarymas: ;close files
         mov bx, [skaitymoDesk]
         mov ah, 0x3E
         int 0x21
    
-   ;uzdarome rasoma faila
         mov bx, [rasymoDesk]
         mov ah, 0x3E
         int 0x21
@@ -196,7 +195,7 @@ startas:
         mov ah, 0x4C
         int 0x21
    
-   .skaityti: ;paduodant reikia dx tureti kur skaityti(dx), ir ilgi(bx)
+   .skaityti: ;where to read(dx), and length(bx)
         mov di, dx ;cia vieta kuria skaityt
         inc di
         inc di     ;du kart ++, nes nuo adresas+2 yra kintamasis
@@ -217,7 +216,7 @@ startas:
         .nustok:
         ret
    
-   .spausdinti: ;dx adresas kurio reikia spausdineti, bx kiek reikia tai kartot
+   .spausdinti: ;where to print(dx), how many symbols(bx)
         mov si, dx
         inc si
         inc si
@@ -239,17 +238,17 @@ section.data
     Askc:
         db 00
     
-    ;failu vardai
+    ;file names
     skaitymoFailas:
         times 255 db 00
     rasymoFailas:
         times 255 db 00
-    ;ju deskriptoriai
+    ;their descriptors
     skaitymoDesk: 
         dw 00
     rasymoDesk:
         dw 00
-        ;duomenys
+        ;data
     dalis1:
         db 0x1E, 0x00, '******************************'
     dalis2:
