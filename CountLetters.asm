@@ -1,5 +1,5 @@
-;Para?ykite  nasm/yasm program?, kurioje vartotojas ?veda tekstin? eilut? (iki 100 simboli?) ir programa suskai?iuoja ma??j? raid?i? i?skyrus ?x?
-;skai?i?. Pvz., jeigu ?vesta eilute LABAS labas xyz, tai atsakymas turi b?ti 7, o jeigu   XYZxYZ - 0. Min?t? ma??j? raid?i? be ?x? radimui para?ykite atskir? proced?r?:
+;vartotojas iveda tekstine eilute (iki 100 simboliu) ir programa suskaiciuoja mazuju raidziu isskyrus 'x'
+;skaiciu. Pvz., jeigu ivesta eilute LABAS labas xyz, tai atsakymas turi buti 7, o jeigu   XYZxYZ - 0.
 
 %include 'yasmmac.inc'          ; Pagalbiniai makrosai
 ;---------------------------------------------------
