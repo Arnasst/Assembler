@@ -1,6 +1,6 @@
-;Para?ykite  nasm/yasm program?, kurioje vartotojas ?veda skai?i?
-;(nuo 0 iki FFFFh) sek?, kurios pabaigoje yra 0, ir programa suskai?iuoja
-;kiek toje sekoje yra skai?i?, kuri? skaitmen? suma yra  ma?esn? u? 10 (0 ?eina ? sek?). Pvz., jeigu ?vesta seka
+;vartotojas iveda skaiciu
+;(nuo 0 iki FFFFh) seka, kurios pabaigoje yra 0, ir programa suskaiciuoja
+;kiek toje sekoje yra skaiciu, kuriu skaitmenu suma yra  mazesne uz 10 (0 ieina i seka).
 
 %include 'yasmmac.inc'          ; Pagalbiniai makrosai
 ;---------------------------------------------------
