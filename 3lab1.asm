@@ -1,17 +1,16 @@
 %include 'yasmmac.inc' 
-%define PERTRAUKIMAS 0x21
+%define PERTRAUKIMAS 0x21       ;this program changes int 0x21 ah=40 function to create a file with a random name instead of the one you gave it when si = 0xffff
 ;------------------------------------------------------------------------
-org 100h                        ; visos COM programos prasideda nuo 100h
-                                ; Be to, DS=CS=ES=SS !
+org 100h                       
  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-section .text                   ; kodas prasideda cia 
+section .text                   
  
    startas:
    jmp Nustatymas
    
    file:
-   db '********.tmp', 0
+   db '********.tmp', 0   ; space for random name of file
    sveikinimasis:
    db 'Hello', 0x0A, 'You look beautiful'
    
@@ -32,7 +31,7 @@ section .text                   ; kodas prasideda cia
         mov cx, 16    
         div cx        ; here dx contains the remainder - from 0 to 15
         add dl, '0'   ; to ascii number
-        cmp dl, '9'   ; check if number or is should it be converted from A-F
+        cmp dl, '9'   ; check if number or should it be converted from A-F
         jle .rasymas
    
         add dl, 7
@@ -73,7 +72,7 @@ section .text                   ; kodas prasideda cia
       mov [.rasymoDesk], ax    ;perkeliu file handle
       ;mov dx, sveikinimasis
       ;mov bx, 5
-      call .spausdinti
+      call .print
       pop ds
       iret
       .toliau
@@ -81,17 +80,17 @@ section .text                   ; kodas prasideda cia
       call far [cs:SenasPertraukimas]   
       iret 
       
-        .spausdinti: ;dx adresas kurio reikia spausdineti, bx kiek reikia tai kartot
+        .print: ;dx is what to print
         mov dx, sveikinimasis
         mov si, dx
-        mov cx, 24 ;nuo dabar cx ilgis kiek kartoti
+        mov cx, 24 ;how many times to repeat(how many symbols)
         mov bx, [.rasymoDesk]
         cld
         .dar:
            lodsb
    push cx
    mov cx, 1
-   mov [.baitas], al
+   mov [.baitas], al  ; this prints one symbol
    mov dx, .baitas
    mov ah, 0x40
    int 0x21
@@ -107,26 +106,26 @@ section .text                   ; kodas prasideda cia
         push    cs
         pop     ds
         mov     ah, 0x35
-        mov     al, PERTRAUKIMAS              ; gauname sena pertraukimo vektoriu
+        mov     al, PERTRAUKIMAS              ; we get the old interrupt
         int     21h
  
  
         ; Saugome sena vektoriu 
-        mov     [cs:SenasPertraukimas], bx             ; issaugome seno doroklio poslinki    
-        mov     [cs:SenasPertraukimas + 2], es         ; issaugome seno doroklio segmenta
+        mov     [cs:SenasPertraukimas], bx             ; save old ip   
+        mov     [cs:SenasPertraukimas + 2], es         ; save old segment
  
         ; Nustatome nauja  vektoriu
         mov     dx, NaujasPertraukimas
         mov     ah, 0x25
-        mov     al, PERTRAUKIMAS                       ; nustatome pertraukimo vektoriu
+        mov     al, PERTRAUKIMAS                       ; change interrupt
         int     21h
  
         macPutString "Pertraukimas pakeistas",  '$'
  
         mov dx, Nustatymas + 1
-        int     27h                       ; Padarome rezidentu
+        int     27h                       ; makes the change permanent
  
 %include 'yasmlib.asm'
  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-section .bss                    ; neinicializuoti duomenys  
+section .bss                    
