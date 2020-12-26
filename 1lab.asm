@@ -180,7 +180,7 @@ section .text ;operacijos
 section .data ;duomenys
     ;pradzia
     prisistatymas:
-        db 'Arnas Stonkus', 0x0D, 0x0A, 'Programu sistemos', 0x0D, 0x0A, '3grupe', '$'
+        db 'Arnas', 0x0D, 0x0A, 'Software Engineering', 0x0D, 0x0A, '$'
     buferisIvedimui:
         db 0x52, 0x00, '**********************************************************************************' ; vieta ivesti
   ;pirmos uzduoties duomenys  
