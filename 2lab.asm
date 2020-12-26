@@ -270,7 +270,7 @@ section.data
     ilgis5:
         dw 00
     prisistatymas:
-    db 'Arnas Stonkus ', 'Programu sistemos ', '3 grupe', 0x0A, 0x0D, '$'
+    db 'Arnas ', 'Software Engineering ', 0x0A, 0x0D, '$'
         
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 section.bss
